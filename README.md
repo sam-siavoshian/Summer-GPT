@@ -1,3 +1,7 @@
+## Follow Me on Instagram
+
+[![Follow me on Instagram](https://img.shields.io/badge/Follow%20me-%40samsiavoshian-%23E4405F.svg?style=for-the-badge&logo=instagram)](https://www.instagram.com/samsiavoshian/)
+
 # Summer-GPT
 
 Summer-GPT is a simple AI chatbot script for fun and easy roleplay scenarios. It's powered by Chat-GPT and developed by a solo creator.
