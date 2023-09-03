@@ -3,7 +3,7 @@ import pyttsx3
 import speech_recognition as sr
 
 # Set your OpenAI API key and model ID
-openai.api_key = "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"
+openai.api_key = "<YOUR OPENAI KEY>"
 model_id = 'gpt-3.5-turbo'
 
 # Initialize the text-to-speech engine
