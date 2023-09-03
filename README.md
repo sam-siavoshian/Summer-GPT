@@ -1,36 +1,42 @@
-## Follow Me on Instagram
-
-[![Follow me on Instagram](https://img.shields.io/badge/Follow%20me-%40samsiavoshian-%23E4405F.svg?style=for-the-badge&logo=instagram)](https://www.instagram.com/samsiavoshian/)
-
-# Connect with Me on LinkedIn
-
-[![Connect with me on LinkedIn](https://img.shields.io/badge/Connect%20with%20me-%40sam--siavoshian-%230077B5.svg?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/sam-siavoshian-83127927b/)
-
-
 # Summer-GPT
 
-Summer-GPT is a simple AI chatbot script for fun and easy roleplay scenarios. It's powered by Chat-GPT and developed by a solo creator.
+## Stay Connected
 
-## Features
+### Instagram
+Follow me on Instagram to stay updated with my latest adventures and insights.
 
-- Lightweight and easy to use.
-- Enjoy various roleplay scenarios with Summer-GPT.
-- Personalized and private interactions on your local machine.
+[![Follow me on Instagram](https://img.shields.io/badge/Follow%20-%40samsiavoshian-%23E4405F.svg?style=for-the-badge&logo=instagram)](https://www.instagram.com/samsiavoshian/)
+
+### LinkedIn
+Let's connect on LinkedIn and grow our professional networks.
+
+[![Connect with me on LinkedIn](https://img.shields.io/badge/Connect%20-%40sam--siavoshian-%230077B5.svg?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/sam-siavoshian-83127927b/)
+
+## About Summer-GPT
+
+Summer-GPT is a Python-based chatbot script designed for immersive and customizable roleplay experiences. It's powered by Chat-GPT and developed by a solo creator, offering you the flexibility to modify chat logs and roleplay scenarios.
+
+## Key Features
+
+- Customize and interact with Summer-GPT using Python.
+- Modify chat logs in the 'chat_log.txt' file.
+- Craft your roleplay scenarios in the 'roleplay.txt' file.
+- Change the history of your AI in 'chat_log.txt' for unique interactions.
 
 ## Getting Started
 
 1. Clone this repository to your local machine.
-2. Follow the installation instructions in the documentation.
-3. Start your roleplay conversations with Summer-GPT.
+2. Follow the installation instructions provided in the documentation.
+3. Begin your personalized roleplay conversations with Summer-GPT.
 
 ## Contributing
 
-Contributions are welcome! Feel free to contribute to the project and make it even better.
+We welcome contributions! Join us in enhancing this Python-based project and making it even more engaging.
 
 ## License
 
-Summer-GPT is open source and free to use.
+Summer-GPT is an open-source project, freely available for everyone to use.
 
 ## Contact
 
-If you have questions or feedback, please contact us at [samsiavoshian2009@gmail.com).
+Have questions or feedback? Feel free to reach out to us at [samsiavoshian2009@gmail.com](mailto:samsiavoshian2009@gmail.com).
