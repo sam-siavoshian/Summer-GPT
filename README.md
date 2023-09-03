@@ -2,6 +2,11 @@
 
 [![Follow me on Instagram](https://img.shields.io/badge/Follow%20me-%40samsiavoshian-%23E4405F.svg?style=for-the-badge&logo=instagram)](https://www.instagram.com/samsiavoshian/)
 
+# Connect with Me on LinkedIn
+
+[![Connect with me on LinkedIn](https://img.shields.io/badge/Connect%20with%20me-%40sam--siavoshian-%230077B5.svg?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/sam-siavoshian-83127927b/)
+
+
 # Summer-GPT
 
 Summer-GPT is a simple AI chatbot script for fun and easy roleplay scenarios. It's powered by Chat-GPT and developed by a solo creator.
