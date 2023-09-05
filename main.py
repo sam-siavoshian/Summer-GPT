@@ -1,9 +1,11 @@
 import openai
 import pyttsx3
 import speech_recognition as sr
+import random
+
 
 # Set your OpenAI API key and model ID
-openai.api_key = "<YOUR OPENAI KEY>"
+openai.api_key = "<Your OpenAI API Key>"
 model_id = 'gpt-3.5-turbo'
 
 # Initialize the text-to-speech engine
@@ -12,7 +14,6 @@ engine.setProperty('rate', 280)
 voices = engine.getProperty('voices')
 engine.setProperty('voice', voices[1].id)
 
-interaction_counter = 0
 
 # Function to transcribe audio to text using Google's Speech Recognition
 def transcribe_audio_to_text(filename):
@@ -23,6 +24,18 @@ def transcribe_audio_to_text(filename):
             return recognizer.recognize_google(audio)
         except:
             print("")
+
+def load_character_profile(character_name):
+    profile_file = f"characters/{character_name}/profile.txt"
+    try:
+        with open(profile_file, "r") as file:
+            character_profile = file.read()
+        return character_profile
+    except FileNotFoundError:
+        print(f"The profile file for {character_name} was not found.")
+        return ""
+
+
 
 # Function to interact with ChatGPT and store the conversation
 def ChatGPT_conversation(conversation):
@@ -51,16 +64,87 @@ def read_roleplay_text():
         print("The 'roleplay.txt' file was not found.")
         return ""
 
+# Function to load character profiles from profile.txt files
+def load_character_profile(character_name):
+    profile_file = f"characters/{character_name}/profile.txt"
+    try:
+        with open(profile_file, "r") as file:
+            profile_lines = file.readlines()
+        character_description = ""
+        exit_phrases = []
+
+        # Parse the profile file
+        is_exit_phrase_section = False
+        for line in profile_lines:
+            if line.startswith("[Exit Phrases]"):
+                is_exit_phrase_section = True
+                continue
+            if not is_exit_phrase_section:
+                character_description += line
+            elif line.strip():  # Avoid empty lines
+                exit_phrases.append(line.strip())
+
+        return character_description, exit_phrases
+    except FileNotFoundError:
+        print(f"The profile file for {character_name} was not found.")
+        return "", []
+
+# Function to choose a character and set the voice
+def choose_character():
+    character_profiles = {
+        "1": {"name": "Best Friend", "voice_index": 0},
+        "2": {"name": "Father", "voice_index": 0},
+        "3": {"name": "Girlfriend", "voice_index": 1},
+        "4": {"name": "Mother", "voice_index": 1},
+        "5": {"name": "Sister", "voice_index": 1},
+        "6": {"name": "Roleplay", "voice_index": 1}
+    }
+
+    while True:
+        print("Choose a character:")
+        for key, character in character_profiles.items():
+            print(f"{key}. {character['name']}")
+        
+        choice = input("Enter the number of the character you want to use (1-6): ")
+
+        if choice in character_profiles:
+            character = character_profiles[choice]
+            if character['name'] == "Roleplay":
+                roleplay_text = read_roleplay_text()
+                if roleplay_text:
+                    return character['name'], roleplay_text, voices[character['voice_index']]
+                else:
+                    print("Roleplay text not found. Please create 'roleplay.txt' with the desired roleplay content.")
+                    exit()
+            else:
+                character_profile = load_character_profile(character['name'])
+                if character_profile:
+                    return character['name'], character_profile, voices[character['voice_index']]
+                else:
+                    print(f"Character profile not found for {character['name']}.")
+                    exit()
+        else:
+            print("Invalid choice. Please enter a valid character number.")
+
+# Initialize the character, profile, voice, and exit phrases
+character_name, character_description, character_voice = choose_character()
+character_profile, exit_phrases = load_character_profile(character_name)
+
+# Set the voice based on the chosen character
+engine.setProperty('voice', character_voice.id)
+
 # Starting conversation with ChatGPT
 conversation = []
-roleplay_text = read_roleplay_text()
-if roleplay_text:
-    conversation.append({'role': 'user', 'content': roleplay_text})
-else:
-    print("Roleplay text not found. Please create 'roleplay.txt' with the desired roleplay content.")
+conversation.append({'role': 'user', 'content': character_profile})
+
+# Function to randomly select an exit phrase from the character's list
+def choose_exit_phrase():
+    return random.choice(exit_phrases)
+
+# Function to end the conversation
+def end_conversation(exit_phrase):
+    print(exit_phrase)  # You can replace this with your desired response
     exit()
-
-
 
 # Function to append text to a log file
 def append_to_log(text):
