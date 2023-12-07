@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/style.css') }}">
+    <title>AI Girlfriend - Sam Siavoshian</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
+</head>
+<body>
+    <div class="background"></div>
+    <header>
+        <h1>Summer GPT</h1>
+        <h3>AI Girlfriend</h1>
+        <p>Developed by <a class="develop_text" href="https://github.com/sam-siavoshian" target="_blank">Sam Siavoshian</a></p>
+    </header>
+    <div class="notification" id="notification">
+        <div class="notification-content">
+            <div class="notification-icon">
+                <i class="fas fa-exclamation-circle"></i>
+            </div>
+            <div class="notification-text">
+                Please enter a message.
+            </div>
+        </div>
+        <div class="notification-timer" id="notification-timer"></div>
+    </div>    
+    
+    <div class="container">
+        <div class="chatbox">
+            <div id="transcribed-text">
+                {% if text %}
+                <div class="message user">
+                    {{ text }}
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="summer-message">
+                {% if response_message %}
+                <div class="message ai">
+                    {{ response_message }}
+                </div>
+                {% endif %}
+            </div>            
+        </div>
+        <div class="user-input">
+            <form id="chatForm" action="/summer_answer" method="POST">
+                <input type="text" id="userMessage" name="user_message" placeholder="Type a message..." autocomplete="off">
+                <button type="submit" class="sendMessage">Send</button>
+            </form>
+        </div>
+        <br>
+        <div class="voice-button">
+            <form action="/record" method="POST">
+                <button id="startRecording" type="submit">
+                    Start Recording <i class="fas fa-microphone"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+    <!-- Delete message icon -->
+    <div class="delete-icon">
+        <i class="fas fa-trash-alt"></i>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../static/scripts/JqueryCode.js"></script>
+    <script src="../static/scripts/script.js"></script>
+    
+</body>
+</html>

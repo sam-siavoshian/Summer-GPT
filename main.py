@@ -1,222 +1,256 @@
 import openai
-import pyttsx3
 import speech_recognition as sr
-import random
-
+import threading
+from rich.console import Console
+import requests
+from pydub import AudioSegment
+from pydub.playback import play
 
 # Set your OpenAI API key and model ID
 openai.api_key = "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"
-model_id = 'gpt-3.5-turbo'
 
-# Initialize the text-to-speech engine
-engine = pyttsx3.init()
-engine.setProperty('rate', 280)
-voices = engine.getProperty('voices')
-engine.setProperty('voice', voices[1].id)
+model_id= "gpt-4-1106-preview"
+
+# model_id = "ft:gpt-3.5-turbo-0613:personal::7wxvMtKW"
 
 
-# Function to transcribe audio to text using Google's Speech Recognition
-def transcribe_audio_to_text(filename):
-    recognizer = sr.Recognizer()
-    with sr.AudioFile(filename) as source:
-        audio = recognizer.record(source)
-        try:
-            return recognizer.recognize_google(audio)
-        except:
-            print("")
 
-def load_character_profile(character_name):
-    profile_file = f"characters/{character_name}/profile.txt"
+# Default voice_ID for Girlfriend
+voice_ID = "EXAVITQu4vr4xnSDxMaL"
+
+# Function to play the Eleven Labs voice
+def speek(text):
+    global voice_ID  # Access the global voice_ID variable
+
+    CHUNK_SIZE = 1024
+    if voice_ID == "girlfriend":
+        voice_URL = "https://api.elevenlabs.io/v1/text-to-speech/EXAVITQu4vr4xnSDxMaL/stream"
+    elif voice_ID == "doctor":
+        voice_URL = "https://api.elevenlabs.io/v1/text-to-speech/Uij9kJMnlsYIk0iiRIUx/stream"
+    else:
+        print("Invalid voice ID selected")
+        return
+
+    headers = {
+        "Accept": "audio/mpeg",
+        "Content-Type": "application/json",
+        "xi-api-key": "0c300f0ff3e0754065480afa3f822a09",
+    }
+
+    data = {
+        "text": text,
+        "model_id": "eleven_monolingual_v1",
+        "voice_settings": {"stability": 0.5, "similarity_boost": 0.5},
+    }
+
+    response = requests.post(voice_URL, json=data, headers=headers, stream=True)
+
+    with open("output.mp3", "wb") as f:
+        for chunk in response.iter_content(chunk_size=CHUNK_SIZE):
+            if chunk:
+                f.write(chunk)
+
+
+
+# Function to read the roleplay text based on the selected profile
+def read_roleplay_text(selected_profile):
     try:
+        profile_file = "Girlfriend profile.txt" if selected_profile == "girlfriend" else "Doctor profile.txt"
         with open(profile_file, "r") as file:
-            character_profile = file.read()
-        return character_profile
-    except FileNotFoundError:
-        print(f"The profile file for {character_name} was not found.")
-        return ""
-
-
-
-# Function to interact with ChatGPT and store the conversation
-def ChatGPT_conversation(conversation):
-    response = openai.ChatCompletion.create(
-        model=model_id,
-        messages=conversation
-    )
-
-    api_usage = response['usage']
-    print('Total tokens consumed: {0}'.format(api_usage['total_tokens']))
-    conversation.append({'role': response.choices[0].message.role, 'content': response.choices[0].message.content})
-    return conversation
-
-# Function to convert text to speech
-def speak_text(text):
-    engine.say(text)
-    engine.runAndWait()
-
-# Function to read roleplay text from "roleplay.txt" file
-def read_roleplay_text():
-    try:
-        with open("roleplay.txt", "r") as file:
             roleplay_text = file.read()
         return roleplay_text
     except FileNotFoundError:
-        print("The 'roleplay.txt' file was not found.")
+        print(f"The '{profile_file}' file was not found.")
         return ""
 
-# Function to load character profiles from profile.txt files
-def load_character_profile(character_name):
-    profile_file = f"characters/{character_name}/profile.txt"
-    try:
-        with open(profile_file, "r") as file:
-            profile_lines = file.readlines()
-        character_description = ""
-        exit_phrases = []
-
-        # Parse the profile file
-        is_exit_phrase_section = False
-        for line in profile_lines:
-            if line.startswith("[Exit Phrases]"):
-                is_exit_phrase_section = True
-                continue
-            if not is_exit_phrase_section:
-                character_description += line
-            elif line.strip():  # Avoid empty lines
-                exit_phrases.append(line.strip())
-
-        return character_description, exit_phrases
-    except FileNotFoundError:
-        print(f"The profile file for {character_name} was not found.")
-        return "", []
-
-# Function to choose a character and set the voice
-def choose_character():
-    character_profiles = {
-        "1": {"name": "Best Friend", "voice_index": 0},
-        "2": {"name": "Father", "voice_index": 0},
-        "3": {"name": "Girlfriend", "voice_index": 1},
-        "4": {"name": "Mother", "voice_index": 1},
-        "5": {"name": "Sister", "voice_index": 1},
-        "6": {"name": "Roleplay", "voice_index": 1}
-    }
+# Function to let the user choose profile
+def choose_profile():
+    global voice_ID  # Access the global voice_ID variable
 
     while True:
-        print("Choose a character:")
-        for key, character in character_profiles.items():
-            print(f"{key}. {character['name']}")
-        
-        choice = input("Enter the number of the character you want to use (1-6): ")
+        print("Please choose who you want to talk to:")
+        print("1. Girlfriend")
+        print("2. Doctor")
+        choice = input("Enter your choice (1/2): ")
 
-        if choice in character_profiles:
-            character = character_profiles[choice]
-            if character['name'] == "Roleplay":
-                roleplay_text = read_roleplay_text()
-                if roleplay_text:
-                    return character['name'], roleplay_text, voices[character['voice_index']]
-                else:
-                    print("Roleplay text not found. Please create 'roleplay.txt' with the desired roleplay content.")
-                    exit()
-            else:
-                character_profile = load_character_profile(character['name'])
-                if character_profile:
-                    return character['name'], character_profile, voices[character['voice_index']]
-                else:
-                    print(f"Character profile not found for {character['name']}.")
-                    exit()
+        if choice == "1":
+            voice_ID = "girlfriend"
+            return "girlfriend"
+        elif choice == "2":
+            voice_ID = "doctor"
+            return "doctor"
         else:
-            print("Invalid choice. Please enter a valid character number.")
+            print("Invalid choice. Please enter either 1 or 2.")
 
-# Initialize the character, profile, voice, and exit phrases
-character_name, character_description, character_voice = choose_character()
-character_profile, exit_phrases = load_character_profile(character_name)
 
-# Set the voice based on the chosen character
-engine.setProperty('voice', character_voice.id)
-
-# Starting conversation with ChatGPT
-conversation = []
-conversation.append({'role': 'user', 'content': character_profile})
-
-# Function to randomly select an exit phrase from the character's list
-def choose_exit_phrase():
-    return random.choice(exit_phrases)
-
-# Function to end the conversation
-def end_conversation(exit_phrase):
-    print(exit_phrase)  # You can replace this with your desired response
-    exit()
+# Initialize the conversation profile based on user choice
+selected_profile = choose_profile()
+roleplay_text = read_roleplay_text(selected_profile)
 
 # Function to append text to a log file
 def append_to_log(text):
     with open("chat_log.txt", "a", encoding="utf-8") as f:
         f.write(text + "\n")
 
-# Initialize the speech recognizer
+
+# Function to read the entire conversation history from the chat log
+def read_conversation_history(file_path, selected_profile):
+    try:
+        with open(file_path, "r", encoding="utf-8") as file:
+            lines = file.readlines()
+        conversation = []
+        current_role = None
+        current_message = []
+
+        for line in lines:
+            if line.startswith("User: "):
+                current_role = "user"
+                current_message.append(line[5:].strip())
+            elif line.startswith("Ai: "):  # Include assistant's messages
+                current_role = "assistant"
+                current_message.append(line[11:].strip())
+            else:
+                # If the line doesn't start with "User:" or "Ai:", it's a continuation of the current message
+                current_message.append(line.strip())
+
+            if not line.strip():
+                # Empty line separates messages in the log
+                if current_role and current_message:
+                    conversation.append(
+                        {"role": current_role, "content": " ".join(current_message)}
+                    )
+                current_role = None
+                current_message = []
+
+        # Update the system message based on the selected profile
+        system_message = {"role": "system", "content": roleplay_text}
+        if selected_profile == "doctor":
+            system_message = {"role": "system", "content": f"Doctor: {roleplay_text}"}
+
+        conversation.append(system_message)
+        return conversation
+
+    except FileNotFoundError:
+        print("The 'chat_log.txt' file was not found.")
+        return []
+
+
+# Initialize an empty conversation
+conversation = []
+
+# Initialize the rich console for the "Listening..." animation
+console = Console()
+listening_animation_visible = (
+    True  # Variable to control the visibilityroleplay_text = read_roleplay_text() of the animation
+)
+
+# Function to read exit phrases from "exit_phrases.txt" file
+def read_exit_phrases():
+    try:
+        with open("exit_phrases.txt", "r") as file:
+            exit_phrases = [line.strip() for line in file.readlines()]
+        return exit_phrases
+    except FileNotFoundError:
+        print("The 'exit_phrases.txt' file was not found.")
+        return []
+
+
+exit_phrases = read_exit_phrases()
+
+
+# Function to display the "Listening..." animation
+def listen_animation(status):
+    while True:
+        with console.status(status):
+            while listening_animation_visible:
+                pass  # Animation remains visible while the variable is True
+            console.clear()  # Clear the console to make the animation invisible
+
+
+# Function to display the status
+def display_status(status):
+    print(status, end="", flush=True)
+
+
+# Initialize the recognizer
 recognizer = sr.Recognizer()
 
-# Function to print conversation to console
-def print_conversation(conversation):
-    for message in conversation:
-        role = message['role'].strip()
-        content = message['content']
+# Variable to store the speech transcript
+transcript = []
 
-        try:
-            # Attempt to print with encoding 'utf-8'
-            print('{0}: {1}\n'.format(role, content))
-        except UnicodeEncodeError:
-            # Handle encoding error by ignoring or replacing the character
-            content = content.encode('utf-8', errors='ignore').decode('utf-8')
-            print('{0}: {1}\n'.format(role, content))
-
-# Main loop to listen for user input and interact with ChatGPT
+# Main loop for speech recognition and ChatGPT interaction
+        # Create a thread to run the "Listening..." animation
+animation_thread = threading.Thread(
+            target=listen_animation, args=("Working on it...",)
+        )
+animation_thread.daemon = (
+            True  # Set as a daemon thread to exit when the main program exits
+        )
+animation_thread.start()
 while True:
-    with sr.Microphone() as source:
-        recognizer.adjust_for_ambient_noise(source, duration=1)
-        print("Listening...")
-        audio = recognizer.listen(source, phrase_time_limit=10)
-        
-        try:
-            transcription = recognizer.recognize_google(audio).lower()  # Convert to lowercase
+    while True:
 
-            # Transcribe audio to text
-            text = transcription
+        try:
+            with sr.Microphone() as source:
+                print("Listening...")
+                recognizer.adjust_for_ambient_noise(source)
+                audio_data = recognizer.listen(source, timeout=5)  # Adjust the timeout as needed
+
+            text = recognizer.recognize_google(audio_data)
 
             if text:
-                print(f"You Said: {text}")
-                append_to_log(f"You: {text}\n")
+                print(f"\rYou Said: {text}  ", end="", flush=True)
+                append_to_log(f"User: {text}\n")
+                display_status("Answering...   ")
 
-                # Generate response using ChatGPT
-                print(f"Summer Said : {conversation}")
+                # Define a system message to provide context to the user
+                system_message = {"role": "system", "content": roleplay_text}
 
-                # Append the user's message to the conversation history
-                conversation.append({'role': 'user', 'content': text})
+                # Read the entire conversation history from chat_log.txt
+                previous_conversation = read_conversation_history("chat_log.txt", selected_profile)
 
-                # Ensure the conversation history doesn't exceed the model's token limit
-                while len(conversation) > 20:
-                    conversation.pop(0)  # Remove the oldest message
+                # Append the system message to the conversation
+                previous_conversation.append(system_message)
 
-                # Generate a response using the entire conversation history
+                # Add the user's latest message to the conversation
+                previous_conversation.append({"role": "user", "content": text})
+
+                # Generate response using ChatGPT with the entire conversation history
                 response = openai.ChatCompletion.create(
-                    model=model_id,
-                    messages=[
-                        {'role': 'system', 'content': 'You are a helpful assistant.'},
-                        {'role': 'user', 'content': 'Hello, my name is Sam.'},  # Specify the user's name
-                    ] + conversation  # Include the entire conversation history
+                    model=model_id, messages=previous_conversation
                 )
 
-                # Append the AI's response to the conversation history
+                # Extract the assistant's response
                 ai_response = response.choices[0].message.content.strip()
-                conversation.append({'role': 'assistant', 'content': ai_response})
-                append_to_log(f"Summer: {ai_response}\n")
+                
+                previous_conversation.append(
+                    {"role": "assistant", "content": ai_response}
+                )
+                append_to_log(f"Ai: {ai_response}\n")
 
-                # Print the AI's response using utf-8 encoding
-                ai_response_utf8 = ai_response.encode('utf-8', errors='ignore').decode('utf-8')
-                print('{0}: {1}\n'.format(conversation[-1]['role'].strip(), ai_response_utf8))
+                print(
+                    f"\rAi: {ai_response}  ", end="", flush=True
+                )  # Overwrite "Answering..."
 
-                # Read response using text-to-speech
-                speak_text(ai_response_utf8)
+                speek(ai_response)
+                # Load the audio file
+                audio_file = AudioSegment.from_file(
+                    "output.mp3", format="mp3"
+                )  # Replace with the path to your audio file
+
+                # Play the audio
+                play(audio_file)
 
         except sr.UnknownValueError:
-            print("Sorry, could not understand the audio.")
+            print("\rListening...   ", end="", flush=True)
         except sr.RequestError as e:
             print(f"Could not request results; {e}")
+        except sr.WaitTimeoutError:
+            print("\rListening timeout. Please speak again.")
+        except sr.UnknownValueError:
+            print("\rCould not understand audio.")
+        except sr.RequestError as e:
+            print(f"Could not request results; {e}")
+
+        # Clear the status message
+        print("\r", end="", flush=True)
