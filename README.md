@@ -10,7 +10,7 @@ Follow me on Instagram to stay updated with my latest adventures and insights.
 ### LinkedIn
 Let's connect on LinkedIn and grow our professional networks.
 
-[![Connect with me on LinkedIn](https://img.shields.io/badge/Connect%20-%40sam--siavoshian-%230077B5.svg?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/sam-siavoshian-83127927b/)
+[![Connect with me on LinkedIn](https://img.shields.io/badge/Connect%20-%40saam--siavoshian-%230077B5.svg?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/sam-siavoshian-83127927b/)
 
 ## About Summer-GPT
 
